@@ -42,10 +42,10 @@ public:
     cmdline->start_section("Choice of input parameters"); //---------
 
     // -- Lund plane windows that define the observable
-    ktmin     = cmdline->value("-kt-min", 10.);
-    ktmax     = cmdline->value("-kt-max", 500.);
-    etamin    = cmdline->value("-eta-min", 4);
-    etamax    = cmdline->value("-eta-max", 5);
+    ktmin     = cmdline->value("-kt-min", 5.);
+    ktmax     = cmdline->value("-kt-max", 400.);
+    etamin    = cmdline->value("-eta-min", 5);
+    etamax    = cmdline->value("-eta-max", 6);
     cmdline->end_section("Choice of input parameters"); //-----------
 
     // declare histograms 
