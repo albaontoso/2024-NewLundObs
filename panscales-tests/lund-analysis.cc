@@ -24,7 +24,7 @@ public:
   JetDefinition _jet_def;
   RecursiveLundEEGenerator _lund_ee_gen; 
   double ktmin,ktmax;
-  double logthmin, logthmax; // define the collinear window
+  double etamin,etamax; // define the collinear window
   /// ctor
   LundAnalysis(CmdLine * cmdline_in)
     : AnalysisFramework(cmdline_in) {
@@ -42,19 +42,18 @@ public:
     cmdline->start_section("Choice of input parameters"); //---------
 
     // -- Lund plane windows that define the observable
-    ktmin     = cmdline->value("-kt-min", 2.);
-    ktmax     = cmdline->value("-kt-max", 200.);
-    logthmin  = cmdline->value("-lnth-min", 4);
-    logthmax  = cmdline->value("-lnth-max", 5);
-    // veto for the subleading jet based on pt and rapidity
+    ktmin     = cmdline->value("-kt-min", 10.);
+    ktmax     = cmdline->value("-kt-max", 500.);
+    etamin    = cmdline->value("-eta-min", 4);
+    etamax    = cmdline->value("-eta-max", 5);
     cmdline->end_section("Choice of input parameters"); //-----------
 
     // declare histograms 
-    hists_2d_compact["lnovth_lnkt_wo_coll" ].declare(0.0, 2*logthmax,10, log(ktmin), log(ktmax), 10);   
-    hists_2d_compact["lnovth_lnkt_w_coll"].declare(0.0, 2*logthmax, 10,  log(ktmin), log(ktmax), 10);   
+    hists_2d_compact["eta_lnkt_wo_coll" ].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
+    hists_2d_compact["eta_lnkt_w_coll"].declare(  0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
     // cross sections
-    xsections["lnovth_lnkt_wo_coll"] = AverageAndError();
-    xsections["lnovth_lnkt_w_coll"]  = AverageAndError();
+    xsections["eta_lnkt_wo_coll"] = AverageAndError();
+    xsections["eta_lnkt_w_coll"]  = AverageAndError();
   }
 
   //----------------------------------------------------------------------
@@ -81,19 +80,19 @@ public:
     for (const auto & d : declusterings){
       pair<double,double> coords = d.lund_coordinates();
       // Check whether there is an emission in the collinear region
-      if (coords.first > logthmin && coords.first < logthmax) coll_emission=true;
+      if (coords.first > etamin && coords.first < etamax) coll_emission=true;
       // If we are in the kt window record the coordinates
       if (coords.second > log(ktmin) && coords.second < log(ktmax)) lund_coordinates.push_back(coords);
     }
-    // NOTE: I guess there is a smart way of avoiding this second loop
+    // NOTE: I guess there is a smart way of avoiding this 2nd loop, but I'm not inspired today..
     for (const auto & l : lund_coordinates)
       if (coll_emission){
-        hists_2d_compact["lnovth_lnkt_w_coll"].add_entry(l.first, l.second, evwgt); // There was at least one collinear emission
-        xsections["lnovth_lnkt_w_coll"] += evwgt;
+        hists_2d_compact["eta_lnkt_w_coll"].add_entry(l.first, l.second, evwgt); // There was at least one collinear emission
+        xsections["eta_lnkt_w_coll"] += evwgt;
       }
       else {
-        hists_2d_compact["lnovth_lnkt_wo_coll"].add_entry(l.first, l.second, evwgt);
-        xsections["lnovth_lnkt_wo_coll"] += evwgt;
+        hists_2d_compact["eta_lnkt_wo_coll"].add_entry(l.first, l.second, evwgt);
+        xsections["eta_lnkt_wo_coll"] += evwgt;
       }
   }
 };
