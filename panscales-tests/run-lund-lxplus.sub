@@ -1,0 +1,22 @@
+executable              = run-lund.py
+arguments               = &nev& $(ProcId) 
+output                  = LOGS/run.$(ClusterId).$(ProcId).out
+error                   = LOGS/run.$(ClusterId).$(ProcId).err
+log                     = LOGS/run.$(ClusterId).$(ProcId).log
+
+getenv                  = True
+transfer_output_files   = ""
+
++JobFlavour = "espresso"
+
+queue 1
+
+#arguments are nev, seed
+#queque = number of jobs
+#espresso     = 20 minutes
+#microcentury = 1 hour
+#longlunch    = 2 hours
+#workday      = 8 hours
+#tomorrow     = 1 day
+#testmatch    = 3 days
+#nextweek     = 1 week
