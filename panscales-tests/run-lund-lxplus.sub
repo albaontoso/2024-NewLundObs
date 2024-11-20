@@ -9,7 +9,7 @@ transfer_output_files   = ""
 
 +JobFlavour = "espresso"
 
-queue 1
+queue &njobs&
 
 #arguments are nev, seed
 #queque = number of jobs
