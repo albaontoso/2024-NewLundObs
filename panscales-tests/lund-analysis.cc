@@ -29,8 +29,8 @@ public:
   LundAnalysis(CmdLine * cmdline_in)
     : AnalysisFramework(cmdline_in) {
       // check that we are running with the correct process
-      if (!dynamic_cast<ProcessZ2qq*>(f_process.get())){
-        throw runtime_error("This analysis is only to be used with a e+e-->qqbar process");
+      if (!dynamic_cast<ProcessZ2qq*>(f_process.get())||!dynamic_cast<ProcessH2gg*>(f_process.get())){
+        throw runtime_error("This analysis is only to be used with an e+e- process");
       }
     _jet_def = JetDefinition(ee_genkt_algorithm, 1.0, 0.0);
     }
@@ -50,10 +50,12 @@ public:
 
     // declare histograms 
     hists_2d_compact["eta_lnkt_wo_coll" ].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
-    hists_2d_compact["eta_lnkt_w_coll"].declare(  0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
+    hists_2d_compact["eta_lnkt_w_coll"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);
+    hists_2d_compact["eta_lnkt_full"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
     // cross sections
     xsections["eta_lnkt_wo_coll"] = AverageAndError();
     xsections["eta_lnkt_w_coll"]  = AverageAndError();
+    xsections["eta_lnkt_full"]	  = AverageAndError();
   }
 
   //----------------------------------------------------------------------
@@ -81,19 +83,23 @@ public:
       pair<double,double> coords = d.lund_coordinates();
       // Check whether there is an emission in the collinear region
       if (coords.first > etamin && coords.first < etamax) coll_emission=true;
-      // If we are in the kt window record the coordinates
-      if (coords.second > log(ktmin) && coords.second < log(ktmax)) lund_coordinates.push_back(coords);
-    }
+      }
     // NOTE: I guess there is a smart way of avoiding this 2nd loop, but I'm not inspired today..
-    for (const auto & l : lund_coordinates)
-      if (coll_emission){
-        hists_2d_compact["eta_lnkt_w_coll"].add_entry(l.first, l.second, evwgt); // There was at least one collinear emission
-        xsections["eta_lnkt_w_coll"] += evwgt;
+    for (const auto & l : lund_coordinates){
+      hists_2d_compact["eta_lnkt_full"].add_entry(l.first, l.second, evwgt); // first fill the primary Lund plane
+      xsections["eta_lnkt_full"] += evwgt;
+      // for our exclusive Lund plane densities, only record emissions in the kt-window   
+      if (l.second > log(ktmin) && l.second < log(ktmax)){
+    	if (coll_emission){
+        	hists_2d_compact["eta_lnkt_w_coll"].add_entry(l.first, l.second, evwgt); // There was at least one collinear emission
+        	xsections["eta_lnkt_w_coll"] += evwgt;
+     	 }
+      	else {
+        	hists_2d_compact["eta_lnkt_wo_coll"].add_entry(l.first, l.second, evwgt);
+        	xsections["eta_lnkt_wo_coll"] += evwgt;
+      	}
       }
-      else {
-        hists_2d_compact["eta_lnkt_wo_coll"].add_entry(l.first, l.second, evwgt);
-        xsections["eta_lnkt_wo_coll"] += evwgt;
-      }
+    }
   }
 };
   
