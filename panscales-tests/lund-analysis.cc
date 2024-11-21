@@ -29,7 +29,7 @@ public:
   LundAnalysis(CmdLine * cmdline_in)
     : AnalysisFramework(cmdline_in) {
       // check that we are running with the correct process
-      if (!dynamic_cast<ProcessZ2qq*>(f_process.get())||!dynamic_cast<ProcessH2gg*>(f_process.get())){
+      if (!dynamic_cast<ProcessZ2qq*>(f_process.get()) && !dynamic_cast<ProcessH2gg*>(f_process.get())){
         throw runtime_error("This analysis is only to be used with an e+e- process");
       }
     _jet_def = JetDefinition(ee_genkt_algorithm, 1.0, 0.0);

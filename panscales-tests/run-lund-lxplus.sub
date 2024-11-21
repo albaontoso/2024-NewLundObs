@@ -1,5 +1,5 @@
 executable              = run-lund.py
-arguments               = &nev& $(ProcId) 
+arguments               = 1 $(ProcId) &ymin& &ymax& 
 output                  = LOGS/run.$(ClusterId).$(ProcId).out
 error                   = LOGS/run.$(ClusterId).$(ProcId).err
 log                     = LOGS/run.$(ClusterId).$(ProcId).log
