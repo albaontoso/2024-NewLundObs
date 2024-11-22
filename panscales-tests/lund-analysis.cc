@@ -51,7 +51,9 @@ public:
     // declare histograms 
     hists_2d_compact["eta_lnkt_wo_coll" ].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
     hists_2d_compact["eta_lnkt_w_coll"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);
-    hists_2d_compact["eta_lnkt_full"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
+    hists_2d_compact["eta_lnkt_full"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20); 
+    const Binning binning(0,10,20);
+    cumul_hists_err["lnkt_area"].declare(binning);  
     // cross sections
     xsections["eta_lnkt_wo_coll"] = AverageAndError();
     xsections["eta_lnkt_w_coll"]  = AverageAndError();
@@ -76,17 +78,23 @@ public:
     // Obtain the primary declusterings 
     std::vector<LundEEDeclustering> declusterings;
     declusterings = _lund_ee_gen.result(cs);
+    double Q = sqrt(cs.Q2());
     // Record the Lund coordinates
     bool coll_emission = false; // bool to check whether there are emissions in the collinear region 
     std::vector<pair<double,double>> lund_coordinates;
     for (const auto & d : declusterings){
       pair<double,double> coords = d.lund_coordinates();
+      lund_coordinates.push_back(coords);
       // Check whether there is an emission in the collinear region
       if (coords.first > etamin && coords.first < etamax) coll_emission=true;
-      }
+    }
     // NOTE: I guess there is a smart way of avoiding this 2nd loop, but I'm not inspired today..
     for (const auto & l : lund_coordinates){
       hists_2d_compact["eta_lnkt_full"].add_entry(l.first, l.second, evwgt); // first fill the primary Lund plane
+      double norm_lnkt = log(Q)-l.second;
+      double leaf_area = abs(l.first)*norm_lnkt; // area of the full triangle
+      std::cout << norm_lnkt << std::endl;
+      cumul_hists_err["lnkt_area"].add_entry(norm_lnkt, evwgt*leaf_area);
       xsections["eta_lnkt_full"] += evwgt;
       // for our exclusive Lund plane densities, only record emissions in the kt-window   
       if (l.second > log(ktmin) && l.second < log(ktmax)){
@@ -94,7 +102,7 @@ public:
         	hists_2d_compact["eta_lnkt_w_coll"].add_entry(l.first, l.second, evwgt); // There was at least one collinear emission
         	xsections["eta_lnkt_w_coll"] += evwgt;
      	 }
-      	else {
+      else {
         	hists_2d_compact["eta_lnkt_wo_coll"].add_entry(l.first, l.second, evwgt);
         	xsections["eta_lnkt_wo_coll"] += evwgt;
       	}
