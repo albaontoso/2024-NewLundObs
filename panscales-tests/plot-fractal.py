@@ -35,7 +35,7 @@ plt.rcParams['legend.handlelength'] = 1
 
 #########################################
 with PdfPages('fractal-lund.pdf') as pdf:
-    data    = get_array_plus_comments('a', 'diff_hist:Lres_area')
+    data    = get_array_plus_comments('a', 'diff_hist:eps_area')
     fig,(ax,axr) = plt.subplots(figsize=(5,3.8),nrows=2,height_ratios=[2,1],sharex=True)   
 
     ax.grid(True, lw=0.5, ls=':', zorder=0)
@@ -45,16 +45,16 @@ with PdfPages('fractal-lund.pdf') as pdf:
     axr.tick_params(axis='both', which='both', direction='in', bottom=True, top=True, left=True, right=True )
     ax.set_ylabel(r'$\ln\mathcal{A}$',fontsize=16)
     axr.set_xlabel(r'$\ln\varepsilon=\ln \frac{k_t}{Q}$',fontsize=16)
-    #print(pow(np.exp(data[:,1]),2)*data[:,3])
-    ax.plot(np.log(1/data[:,0]), np.log(data[:,3]),color='crimson')
-    ax.set_ylim(0,14)
-    ax.set_xlim(-7,0)
+    # we take the log of both variables
+    ax.plot(np.log(data[:,0]), np.log(data[:,3]),color='crimson')
+    ax.set_xlim(-6,0)
     ax.minorticks_on()
     ax.legend(loc='best', edgecolor='white',borderpad=0.1, fontsize=14)
-    ratio = -np.log(data[:,3])/np.log(1/data[:,0])
+    ratio = -np.log(data[:,3])/np.log(data[:,0])
     axr.set_ylabel(r'$d$',fontsize=16)
-    axr.set_ylim(1.99,2.01)
-    axr.set_xlim(-7,0)
-    axr.plot(np.log(1/data[:,0]), ratio,color='navy')
+    axr.set_ylim(1.99,2.05)
+    axr.set_xlim(-6,0)
+    # the dimension is just the log between the 2 things
+    axr.plot(np.log(data[:,0]), ratio,color='navy')
     pdf.savefig(bbox_inches='tight')
     plt.close()
