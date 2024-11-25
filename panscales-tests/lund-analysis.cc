@@ -56,8 +56,8 @@ public:
     hists_2d_compact["eta_lnkt_wo_coll" ].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
     hists_2d_compact["eta_lnkt_w_coll"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);
     hists_2d_compact["eta_lnkt_full"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20); 
-    const Binning binning(ktmin/rts,1,15);
     // create the histogram for the fractal story
+    const Binning binning(ktmin/rts,1,15);
     eps_min = ktmin/rts;
     nbins = binning.size();  
     cumul_hists_err["eps_area"].declare(binning);  
