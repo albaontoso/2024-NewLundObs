@@ -25,6 +25,8 @@ public:
   RecursiveLundEEGenerator _lund_ee_gen; 
   double ktmin,ktmax;
   double etamin,etamax; // define the collinear window
+ // double Lmin,Lmax; // values of the resolution scale
+  double nbins;
   /// ctor
   LundAnalysis(CmdLine * cmdline_in)
     : AnalysisFramework(cmdline_in) {
@@ -42,18 +44,21 @@ public:
     cmdline->start_section("Choice of input parameters"); //---------
 
     // -- Lund plane windows that define the observable
-    ktmin     = cmdline->value("-kt-min", 5.);
-    ktmax     = cmdline->value("-kt-max", 400.);
-    etamin    = cmdline->value("-eta-min", 5);
-    etamax    = cmdline->value("-eta-max", 6);
+    double rts = cmdline->value<double>("-rts", 1000.);
+    ktmin      = cmdline->value("-kt-min", 1.);
+    ktmax      = cmdline->value("-kt-max", rts/2.);
+    etamin     = cmdline->value("-eta-min", 5);
+    etamax     = cmdline->value("-eta-max", 6);
+
     cmdline->end_section("Choice of input parameters"); //-----------
 
     // declare histograms 
     hists_2d_compact["eta_lnkt_wo_coll" ].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);   
     hists_2d_compact["eta_lnkt_w_coll"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20);
     hists_2d_compact["eta_lnkt_full"].declare(0.0, 2*etamax,10, log(ktmin), log(ktmax), 20); 
-    const Binning binning(0,10,20);
-    cumul_hists_err["lnkt_area"].declare(binning);  
+    const Binning binning(ktmin,ktmax,20);
+    nbins = binning.size();  
+    cumul_hists_err["Lres_area"].declare(binning);  
     // cross sections
     xsections["eta_lnkt_wo_coll"] = AverageAndError();
     xsections["eta_lnkt_w_coll"]  = AverageAndError();
@@ -79,6 +84,15 @@ public:
     std::vector<LundEEDeclustering> declusterings;
     declusterings = _lund_ee_gen.result(cs);
     double Q = sqrt(cs.Q2());
+    // we are gonna first initialize the histogram
+    // as if no emissions were resolved 
+    // sketch:
+    double ktstep=(ktmax-ktmin)/nbins;
+    for(unsigned int j=0; j<nbins;j++){
+      double ktval = ktmin+ktstep*to_double(j);
+      double area = pow2(ktval)*ktstep;
+      cumul_hists_err["Lres_area"].add_entry(ktval,area);
+    }
     // Record the Lund coordinates
     bool coll_emission = false; // bool to check whether there are emissions in the collinear region 
     std::vector<pair<double,double>> lund_coordinates;
@@ -91,10 +105,6 @@ public:
     // NOTE: I guess there is a smart way of avoiding this 2nd loop, but I'm not inspired today..
     for (const auto & l : lund_coordinates){
       hists_2d_compact["eta_lnkt_full"].add_entry(l.first, l.second, evwgt); // first fill the primary Lund plane
-      double norm_lnkt = log(Q)-l.second;
-      double leaf_area = abs(l.first)*norm_lnkt; // area of the full triangle
-      std::cout << norm_lnkt << std::endl;
-      cumul_hists_err["lnkt_area"].add_entry(norm_lnkt, evwgt*leaf_area);
       xsections["eta_lnkt_full"] += evwgt;
       // for our exclusive Lund plane densities, only record emissions in the kt-window   
       if (l.second > log(ktmin) && l.second < log(ktmax)){
