@@ -1,5 +1,5 @@
 executable              = run-lund.py
-arguments               = 1e7 $(ProcId) &ymin& &ymax& 
+arguments               = 1e7 $(ProcId) &ymin& &ymax& &shower& &betaps& 
 output                  = LOGS/run.$(ClusterId).$(ProcId).out
 error                   = LOGS/run.$(ClusterId).$(ProcId).err
 log                     = LOGS/run.$(ClusterId).$(ProcId).log
@@ -7,11 +7,11 @@ log                     = LOGS/run.$(ClusterId).$(ProcId).log
 getenv                  = True
 transfer_output_files   = ""
 
-+JobFlavour = "microcentury"
++JobFlavour = "tomorrow"
 
 queue &njobs&
 
-#arguments are nev, seed
+#arguments are nev, seed, ymin, ymax, shower, betaps
 #queque = number of jobs
 #espresso     = 20 minutes
 #microcentury = 1 hour

@@ -19,12 +19,13 @@ nev        = sys.argv[1]
 seed       = sys.argv[2]
 etamin     = sys.argv[3]
 etamax     = sys.argv[4]
+shower     = sys.argv[5]
+betaps     = sys.argv[6]
+print("Input arguments: shower = "+shower+betaps+"; nev = "+nev+"; seed = "+seed+"; etamin = "+etamin+"; etamax = "+etamax)
 
-print("Input arguments: nev = "+nev+"; seed = "+seed+"; etamin = "+etamin+"; etamax = "+etamax)
-
-basic_settings = f"-shower panglobal -beta 0.0 -physical-coupling -no-spin-corr -match-process -process ee2qq -rts 1000"
-extra          = " -nev "+str(nev)+" -eta-min "+str(etamin)+" -eta-max "+str(etamax)
-outname        ="pg00"+"_etamin_"+str(etamin)+"_etamax_"+str(etamax)+"_seed_"+str(seed)+".dat"
+basic_settings = f"-nloops 0 -no-spin-corr -process ee2qq -rts 10000"
+extra          = " -shower "+shower+" -beta "+str(betaps)+" -nev "+str(nev)+" -eta-min "+str(etamin)+" -eta-max "+str(etamax)
+outname        =shower+"_beta"+str(betaps)+"_etamin_"+str(etamin)+"_etamax_"+str(etamax)+"_seed_"+str(seed)+".dat"
     
 command=prg+" -out "+outname+extra
 command+=" "+basic_settings+" -rseq "+seed
